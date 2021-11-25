@@ -1,20 +1,11 @@
-//
-// DustEnhancement, enhance dust in an image by using various wavelet layers
-//
-// Copyright Naveen Malik, 2021
-//
-// History
-//      2021-08-XX     0.0.1   First release.
-//       
-
-#feature-id  jewzaam > Dust Enhancement
+#feature-id  astroninja.us > Dust Enhancement
 
 #define ID                 "DustEnhancement"
 #define TITLE              "Dust Enhancement"
 #define VERSION            "0.0.1"
 #define AUTHOR             "Naveen Malik"
 
-#feature-info  A utility script that uses wavelet layers to create enhancement in faint dust.
+#feature-info experimental script to boost dust
 
 #include <pjsr/Sizer.jsh>
 #include <pjsr/FrameStyle.jsh>

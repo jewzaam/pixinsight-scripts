@@ -25,7 +25,7 @@
             </p>
             <p>Contains:
                 <ul>
-                    <li>AddStars - adds image "$T_stars" into active viwe</li>
+                    <li>AddStars - adds image "$T_stars" into active view</li>
                     <li>AddViews - adds all "$T[0-9]+" images to the applied image</li>
                     <li>BetterEzDeconStarmask - use StarXTerminator in conjuction with StarNet to create a better mask</li>
                     <li>CleanupFITSHeaders - remove all HISTORY FITS headers</li>

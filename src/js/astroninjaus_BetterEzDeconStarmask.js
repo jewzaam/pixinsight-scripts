@@ -1,3 +1,13 @@
+#feature-id  astroninja.us > Better EZ Decon StarMask
+
+#define ID                 "BetterEzDeconStarmask"
+#define TITLE              "Better EZ Decon StarMask"
+#define VERSION            "0.0.1"
+#define AUTHOR             "Naveen Malik"
+
+#feature-info use StarXTerminator in conjuction with StarNet to create a better mask
+
+
 //STF settings:
 // Shadows clipping point in (normalized) MAD units from the median.
 #define DEFAULT_AUTOSTRETCH_SCLIP -2.8

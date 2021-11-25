@@ -1,5 +1,11 @@
-// Simple script to add all images named the same as the applied image where appended by numbers.
-// Use to quickly build a composite rejection (II) and weights (DI) images.
+#feature-id  astroninja.us > Add Views
+
+#define ID                 "AddViews"
+#define TITLE              "Add Views"
+#define VERSION            "0.0.1"
+#define AUTHOR             "Naveen Malik"
+
+#feature-info adds all "$T[0-9]+" images to the applied image
 
 
 function mainAddViews() {

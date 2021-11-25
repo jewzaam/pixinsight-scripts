@@ -1,3 +1,12 @@
+#feature-id  astroninja.us > Add Stars
+
+#define ID                 "AddStars"
+#define TITLE              "Add Stars"
+#define VERSION            "0.0.1"
+#define AUTHOR             "Naveen Malik"
+
+#feature-info adds image "$T_stars" into active view
+
 
 function mainAddStars() {
     // auto stretches the current active view using ez scripts

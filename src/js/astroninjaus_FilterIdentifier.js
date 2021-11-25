@@ -1,4 +1,11 @@
-// Simple script to read filter from fits header and rename view with the filter name.
+#feature-id  astroninja.us > Filter Identifier
+
+#define ID                 "FilterIdentifier"
+#define TITLE              "Filter Identifier"
+#define VERSION            "0.0.1"
+#define AUTHOR             "Naveen Malik"
+
+#feature-info rename view to FILTER FITS header value
 
 function getKeyValue(window, keyName)
 {

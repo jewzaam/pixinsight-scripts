@@ -1,18 +1,12 @@
-//
-// CleanupFITSHeader, remove FITS headers that are not useful and slow down other processing steps
-//
-// Copyright Naveen Malik, 2021
-//
-// History
-//      2021-08-15     0.0.1   First release, removes all HISTORY headers.
-//       
+#feature-id  astroninja.us > Cleanup FITS Headers
 
-#feature-id  jewzaam > Cleanup FITS Header
-
-#define ID                 "CleanupFITSHeader"
-#define TITLE              "Cleanup FITS Header"
+#define ID                 "CleanupFITSHeaders"
+#define TITLE              "Cleanup FITS Headers"
 #define VERSION            "0.0.1"
 #define AUTHOR             "Naveen Malik"
+
+#feature-info remove all HISTORY FITS headers
+
 
 function main()
 {
