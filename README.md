@@ -2,9 +2,21 @@
 
 Various pixinsight scripts.
 
+# Install
+
+TODO once I have setup publishing...
+
+# Documentation
+
 ## AddStars
 
 Used in conjuction with StarXTerminator.  Assumes the extracted stars are the original image id appending with `_stars`.  Makes it easier to quickly add any stars back into the image they originated from.  Useful to do manipulation of nebula without stars to minimize impact on those stars.
+
+## AddViews
+
+Applied to an image with an id, script adds all other images that start with that image's id to the image.  Used for building a rejection_low composite after image integration.  This aids in the initial crop of the monochrome frames.
+
+Example, apply to `rejection_low` and will add `rejecction_low1`, `rejection_low2`, etc.
 
 ## BetterEzDeconStarmask
 
@@ -24,8 +36,6 @@ A script written to help bring out dust for Iris Nebula.  Not sure I like it any
 
 Renames the target view to the `FILTER` FITS header.
 
-## PM_AddAll
+# Release
 
-Applied to an image with an id, script adds all other images that start with that image's id to the image.  Used for building a rejection_low composite after image integration.  This aids in the initial crop of the monochrome frames.
-
-Example, apply to `rejection_low` and will add `rejecction_low1`, `rejection_low2`, etc.
+TODO, intent is to use simple python script `src/py/release.py` to create the updates.xri and release tarball.

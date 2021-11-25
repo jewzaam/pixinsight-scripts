@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xri version="1.0">
+  <description>
+     <p>
+        astroninja.us Updates
+     </p>
+  </description>
+   <platform os="all" arch="noarch" version="1.8.8:1.8.8">
+      <package fileName="$(RELEASE_FILENAME)"
+               sha1="$(RELEASE_SHA1)"
+               type="documentation"
+               releaseDate="$(RELEASE_DATE)">
+         <title>
+            astroninja.us Scripts
+         </title>
+         <description>
+            <p>
+               astroninja.us Scripts as of Release Date
+            </p>
+            <p>
+               Some scripts require <a href="https://darkarchon.internet-box.ch:8443/">EZ Suite</a>.
+            </p>
+            <p>
+               Some scripts require <a href="https://www.rc-astro.com/resources/StarXTerminator/">StarXTerminator</a>.
+            </p>
+            <p>Contains:
+                <ul>
+                    <li>AddStars - adds image "$T_stars" into active viwe</li>
+                    <li>AddViews - adds all "$T[0-9]+" images to the applied image</li>
+                    <li>BetterEzDeconStarmask - use StarXTerminator in conjuction with StarNet to create a better mask</li>
+                    <li>CleanupFITSHeaders - remove all HISTORY FITS headers</li>
+                    <li>DustEnhancement - experimental script to boost dust</li>
+                    <li>FilterIdentifier - rename view to FILTER FITS header value</li>
+                </ul>
+            </p>
+            <p>
+               Source available under GPL v3.0: https://github.com/jewzaam/pixinsight-scripts
+            </p>
+         </description>
+      </package>
+   </platform>
+</xri>
