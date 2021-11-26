@@ -31,7 +31,7 @@ if __name__ == '__main__':
     with tarfile.open(filename_tarball, "w:gz") as tar:
         for root, _, files in os.walk(scriptdir, topdown=False):
             for name in files:
-                tar.add(os.path.join(root, name), arcname=name)
+                tar.add(os.path.join(root, name), arcname=f"astroninja.us\\{name}")
     
     # https://stackoverflow.com/questions/22058048/hashing-a-file-in-python
     # calculate sha1
