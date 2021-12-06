@@ -22,6 +22,11 @@ Example, apply to `rejection_low` and will add `rejecction_low1`, `rejection_low
 
 Creates a better starmask for EZ Decon.  Uses StarXTerminator to build a starmask and adds it to the starmask created by StarNet.  The binarize process is tweaked from what EZ Decon uses.  Instead of a static threshold of 0.1 it uses the image mean as the reference.  For StarNet it is the actual mean.  For StarXTerminator it is image mean * 4 because it extracts much more faint bits of the star halos.
 
+Can control if this uses StarNet and/or StarXTerminator from script parameters:
+
+* use_starnet: default=true, set to "false" to not use StarNet in the mask generation
+* use_starxterminator: default=true, set to "false" to not use StarXTerminator in the mask generation
+
 Note this script copies some functions from EZ Decon and EZ Common scripts.  Only `doBinarize` is modified.  For the original scripts, which you want to have to use this as intended, go to https://darkarchon.internet-box.ch:8443/
 
 ## CleanupFITSHeader
@@ -35,6 +40,10 @@ A script written to help bring out dust for Iris Nebula.  Not sure I like it any
 ## FilterIdentifier
 
 Renames the target view to the `FILTER` FITS header.
+
+## SetMask
+
+Script to set mask and mask settings from script parameters.  
 
 # Release
 
