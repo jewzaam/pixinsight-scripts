@@ -47,7 +47,7 @@
 
 #define ID                 "MaskGen"
 #define TITLE              "Mask Generator"
-#define VERSION            "1.4.3"
+#define VERSION            "1.4.3-beta"
 #define Compression_ZLib   1
 
 #define GAIA         "I/345/gaia2" // "GAIA-DR2"
@@ -97,6 +97,74 @@ function gccParms()
    this.ringWidthScale  = 0;
    this.ringMask        = false;
    this.dataFolder      = null;
+
+   // load whatever can be loaded
+   importGccParms(this);
+}
+
+function exportGccParms(parms)
+{
+   Parameters.set("minMagCat", parms.minMagCat);
+   Parameters.set("maxMagCat", parms.maxMagCat);
+   Parameters.set("minMagMask", parms.minMagMask);
+   Parameters.set("maxMagMask", parms.maxMagMask);
+   Parameters.set("minRadius", parms.minRadius);
+   Parameters.set("maxRadius", parms.maxRadius);
+   Parameters.set("maxWidth", parms.maxWidth);
+   Parameters.set("minWidth", parms.minMagCat);
+   Parameters.set("allStars", parms.allStars);
+   // Parameters.set("VizierSite", parms.VizierSite);
+   Parameters.set("version", parms.version);
+   Parameters.set("softEdges", parms.softEdges);
+   Parameters.set("ringWidthScale", parms.ringWidthScale);
+   Parameters.set("ringMask", parms.ringMask);
+   Parameters.set("dataFolder", parms.dataFolder);
+}
+
+function importGccParms(parms)
+{
+   if (Parameters.has("minMagCat")) {
+      parms.minMagCat = Parameters.getReal("minMagCat");
+   }
+   if (Parameters.has("maxMagCat")) {
+      parms.maxMagCat = Parameters.getReal("maxMagCat");
+   }
+   if (Parameters.has("minMagMask")) {
+      parms.minMagMask = Parameters.getReal("minMagMask");
+   }
+   if (Parameters.has("maxMagMask")) {
+      parms.maxMagMask = Parameters.getReal("maxMagMask");
+   }
+   if (Parameters.has("minRadius")) {
+      parms.minRadius = Parameters.getReal("minRadius");
+   }
+   if (Parameters.has("maxRadius")) {
+      parms.maxRadius = Parameters.getReal("maxRadius");
+   }
+   if (Parameters.has("maxWidth")) {
+      parms.maxWidth = Parameters.getReal("maxWidth");
+   }
+   if (Parameters.has("minWidth")) {
+      parms.minWidth = Parameters.getReal("minWidth");
+   }
+   if (Parameters.has("allStars")) {
+      parms.allStars = Parameters.getBoolean("allStars");
+   }
+   if (Parameters.has("version")) {
+      parms.version = Parameters.getString("version");
+   }
+   if (Parameters.has("softEdges")) {
+      parms.softEdges = Parameters.getBoolean("softEdges");
+   }
+   if (Parameters.has("ringWidthScale")) {
+      parms.ringWidthScale = Parameters.getReal("ringWidthScale");
+   }
+   if (Parameters.has("ringMask")) {
+      parms.ringMask = Parameters.getBoolean("ringMask");
+   }
+   if (Parameters.has("dataFolder")) {
+      parms.dataFolder = Parameters.getString("dataFolder");
+   }
 }
 
 function cControl()
@@ -228,35 +296,43 @@ function showDialog(imageWindow)
 
    var parms = new gccParms();
 
-   var setts = Settings.read(ID + "/parms", DataType_String );
-   if (setts != null)
-   {
-      parms = JSON.parse(setts);
-      parms.versionCheck = function()
+   if (Parameters.isGlobalTarget) {
+      Console.writeln("loading parms from settings!")
+      var setts = Settings.read(ID + "/parms", DataType_String );
+      Console.writeln(setts)
+      if (setts != null)
       {
-         var keys = Object.keys(parms);
-         var i = keys.indexOf("version");
-         if (i < 0)
+         parms = JSON.parse(setts);
+         parms.versionCheck = function()
+         {
+            var keys = Object.keys(parms);
+            var i = keys.indexOf("version");
+            if (i < 0)
+            {
+               parms = new gccParms();
+            }
+            else
+            {
+               var a = parms.version.split('.');
+               var b = VERSION.split('.');
+               for (var i in a)
+               {
+                  if (a[i].toInt() < b[i].toInt()) return false;
+               }
+            }
+            return true;
+         }
+         if (!parms.versionCheck())
          {
             parms = new gccParms();
+            parms.version = VERSION;
          }
-         else
-         {
-            var a = parms.version.split('.');
-            var b = VERSION.split('.');
-            for (var i in a)
-            {
-               if (a[i].toInt() < b[i].toInt()) return false;
-            }
-         }
-         return true;
       }
-      if (!parms.versionCheck())
-      {
-         parms = new gccParms();
-         parms.version = VERSION;
-      }
+   } else {
+      Console.writeln("Skipping load of parms from settings.")
    }
+
+   Console.writeln("TEST: " + parms.maxMagMask)
 
    // setup dataFolder
 
@@ -1033,6 +1109,17 @@ function showDialog(imageWindow)
       //sizer.add(sitesLine);
    }
 
+   this.newInstance_Button = new ToolButton(this);
+   this.newInstance_Button.icon = new Bitmap( ":/process-interface/new-instance.png" );
+   this.newInstance_Button.toolTip = "New Instance";
+   this.newInstance_Button.onMousePress = function()
+   {
+      this.hasFocus = true;
+      exportGccParms(parms);
+      this.pushed = false;
+      this.dialog.newInstance();
+   };
+
    this.btnCancel = new PushButton(this);
    with (this.btnCancel)
    {
@@ -1066,6 +1153,7 @@ function showDialog(imageWindow)
       toolTip = "<b>Create mask</b>";
       onClick = function(checked)
       {
+         Console.writeln("Parameters on execute: " + parms.maxMagMask)
          dlg.btnExec.enabled = false;
          if (cc.GaiaDR3using)
          {
@@ -1211,11 +1299,12 @@ function showDialog(imageWindow)
 
    var btnLine = new HorizontalSizer();
    btnLine.margin = 4;
-   btnLine.add(this.btnCancel);
+   btnLine.add(this.newInstance_Button)
    btnLine.addStretch();
    btnLine.add(this.btnExec);
    btnLine.addStretch();
    btnLine.add(this.btnOK);
+   btnLine.add(this.btnCancel);
 
 
    this.sizer = new VerticalSizer();
@@ -3511,6 +3600,22 @@ function  writeObject(o)
 showDialog.prototype = new Dialog;
 infoDialog.prototype = new Dialog;
 
+/*
+ * Restore saved parameters.
+ */
+function importParameters() {
+   if(Parameters.has("minHue"))
+      data.minHue = Parameters.getReal("minHue");
+   if(Parameters.has("maxHue"))
+      data.maxHue = Parameters.getReal("maxHue");
+   if (Parameters.has("maskType"))
+      data.maskType = Parameters.getInteger("maskType");
+   if(Parameters.has("maskStrength"))
+      data.maskStrength = Parameters.getReal("maskStrength");
+   if(Parameters.has("blurLayers"))
+      data.blurLayers = Parameters.getInteger("blurLayers");
+}
+
 
 function main()
 {
@@ -3518,6 +3623,11 @@ function main()
    //
    // check view on color and WCS
    //
+
+   if (Parameters.isGlobalTarget || Parameters.isViewTarget) {
+      importParameters();
+   }
+
    var window = ImageWindow.activeWindow;
 
    if ( window.isNull )
@@ -3540,7 +3650,7 @@ function main()
    var ctype1Comment = getKeyComment(window, 'CTYPE1');
    var ctype2Comment = getKeyComment(window, 'CTYPE2');
 
-   if (getProjection(ctype1Comment) != 'Gnomonic' || getProjection(ctype1Comment) != 'Gnomonic')
+   if (getProjection(ctype1Comment) != 'Gnomonic' || getProjection(ctype2Comment) != 'Gnomonic')
    {
       errMessage( "Image not solved with gnomonic projection" );
    }
@@ -3551,7 +3661,33 @@ function main()
    // *******************************************************************************
    Console.show();
  	var dialog = new showDialog(window);
-	dialog.execute();
+   if (Parameters.isGlobalTarget) {
+      // show the dialog, user interaction mode
+	   dialog.execute();
+   } else {
+      // run with parameters on the target view
+      dialog.btnExec.onClick(true);
+      /*
+      parms.minMagMask
+      parms.maxMagMask
+      cc.GaiaDR3using
+      cc.dataExec.getDataInfo()
+         minMag
+         maxMag
+         fileDescriptors[]
+         records
+      cc.height
+      cc.width
+      parms.softEdges
+      cc.ringMask
+      cc.dataExec.open()
+      cc.years
+      cc.window.celestialToImage(ra, dec)
+      radiusOfMag(_, parms) <-- TODO 
+      cc.usePSF
+      
+      */
+   }
 }
 
 main();
