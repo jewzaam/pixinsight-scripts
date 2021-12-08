@@ -78,13 +78,17 @@ function mainCreateDeconStarMask() {
 	var PM;
 	if (useStarNet) {
 		starnetStarsWindow = doExtractStars_StarNet(mask);
+	}
+	if (useStarXTerminator) {
+		starxtermStarsWindow = doExtractStars_StarXTerminator(mask);
+	}
+	if (useStarNet) {
 		PM = new PixelMath;
 		PM.expression = format("%s", starnetStarsWindow.mainView.id);
 		PM.executeOn(mask);
 		doBinarize(mask, binarize_multiplier_starnet);
 	}
 	if (useStarXTerminator) {
-		starxtermStarsWindow = doExtractStars_StarXTerminator(mask);
 		PM = new PixelMath;
 		PM.expression = format("%s", starxtermStarsWindow.mainView.id);
 		PM.executeOn(mask);
