@@ -297,9 +297,7 @@ function showDialog(imageWindow)
    var parms = new gccParms();
 
    if (Parameters.isGlobalTarget) {
-      Console.writeln("loading parms from settings!")
       var setts = Settings.read(ID + "/parms", DataType_String );
-      Console.writeln(setts)
       if (setts != null)
       {
          parms = JSON.parse(setts);
@@ -328,11 +326,7 @@ function showDialog(imageWindow)
             parms.version = VERSION;
          }
       }
-   } else {
-      Console.writeln("Skipping load of parms from settings.")
    }
-
-   Console.writeln("TEST: " + parms.maxMagMask)
 
    // setup dataFolder
 
@@ -1153,7 +1147,6 @@ function showDialog(imageWindow)
       toolTip = "<b>Create mask</b>";
       onClick = function(checked)
       {
-         Console.writeln("Parameters on execute: " + parms.maxMagMask)
          dlg.btnExec.enabled = false;
          if (cc.GaiaDR3using)
          {
@@ -3600,22 +3593,6 @@ function  writeObject(o)
 showDialog.prototype = new Dialog;
 infoDialog.prototype = new Dialog;
 
-/*
- * Restore saved parameters.
- */
-function importParameters() {
-   if(Parameters.has("minHue"))
-      data.minHue = Parameters.getReal("minHue");
-   if(Parameters.has("maxHue"))
-      data.maxHue = Parameters.getReal("maxHue");
-   if (Parameters.has("maskType"))
-      data.maskType = Parameters.getInteger("maskType");
-   if(Parameters.has("maskStrength"))
-      data.maskStrength = Parameters.getReal("maskStrength");
-   if(Parameters.has("blurLayers"))
-      data.blurLayers = Parameters.getInteger("blurLayers");
-}
-
 
 function main()
 {
@@ -3623,10 +3600,6 @@ function main()
    //
    // check view on color and WCS
    //
-
-   if (Parameters.isGlobalTarget || Parameters.isViewTarget) {
-      importParameters();
-   }
 
    var window = ImageWindow.activeWindow;
 
@@ -3650,7 +3623,7 @@ function main()
    var ctype1Comment = getKeyComment(window, 'CTYPE1');
    var ctype2Comment = getKeyComment(window, 'CTYPE2');
 
-   if (getProjection(ctype1Comment) != 'Gnomonic' || getProjection(ctype2Comment) != 'Gnomonic')
+   if (getProjection(ctype1Comment) != 'Gnomonic' || getProjection(ctype1Comment) != 'Gnomonic')
    {
       errMessage( "Image not solved with gnomonic projection" );
    }
@@ -3667,26 +3640,6 @@ function main()
    } else {
       // run with parameters on the target view
       dialog.btnExec.onClick(true);
-      /*
-      parms.minMagMask
-      parms.maxMagMask
-      cc.GaiaDR3using
-      cc.dataExec.getDataInfo()
-         minMag
-         maxMag
-         fileDescriptors[]
-         records
-      cc.height
-      cc.width
-      parms.softEdges
-      cc.ringMask
-      cc.dataExec.open()
-      cc.years
-      cc.window.celestialToImage(ra, dec)
-      radiusOfMag(_, parms) <-- TODO 
-      cc.usePSF
-      
-      */
    }
 }
 
