@@ -3623,7 +3623,7 @@ function main()
    var ctype1Comment = getKeyComment(window, 'CTYPE1');
    var ctype2Comment = getKeyComment(window, 'CTYPE2');
 
-   if (getProjection(ctype1Comment) != 'Gnomonic' || getProjection(ctype1Comment) != 'Gnomonic')
+   if (getProjection(ctype1Comment) != 'Gnomonic' || getProjection(ctype2Comment) != 'Gnomonic')
    {
       errMessage( "Image not solved with gnomonic projection" );
    }
