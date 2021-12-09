@@ -7,8 +7,11 @@
 
 #feature-info use StarXTerminator in conjuction with StarNet to create a better mask
 
+#include <pjsr/StdIcon.jsh>
+#include <pjsr/StdCursor.jsh>
 
 #include "astroninjaus_Common.js"
+#include "astroninjaus_BetterMaskGen_Library.js"
 
 
 function mainCreateDeconStarMask() {
@@ -24,7 +27,28 @@ function mainCreateDeconStarMask() {
 	Console.show();
 	Console.writeln("Creating mask for deconvolution...")
  
-	// work on a clone,
+	// first process maskgen since if it fails we can save a lot of work early
+	var useMaskGen = Parameters.has("use_maskgen") ? Parameters.getBoolean("use_maskgen") : false;
+	var maskgenView;
+
+	if (useMaskGen) {
+		try
+		{
+		   window.regenerateAstrometricSolution();
+		}
+		catch (ex) {}
+	 
+		if ( window.astrometricSolution() == null )
+		{
+		   	errMessage("Image has no astrometric solution");
+		   	return;
+		}
+	 
+		maskgenView = autoMaskGen(window, format("_ez_Decon_%s_MaskGen_stars", window.mainView.id));
+		maskgenView.window.show();
+	}
+
+	// clone active window for the final mask
 	var maskId = format("_ez_Decon_%s_StarMask_better", window.currentView.id);
 	var mask;
 
@@ -71,37 +95,55 @@ function mainCreateDeconStarMask() {
 	// reset stf
 	doResetSTF(mask);
 	// extract stars
-	var useStarNet = Parameters.has("use_starnet") ? Parameters.getBoolean("use_starnet") : true;
+	var useStarNet = Parameters.has("use_starnet") ? Parameters.getBoolean("use_starnet") : false;
 	var useStarXTerminator = Parameters.has("use_starxterminator") ? Parameters.getBoolean("use_starxterminator") : true;
 	var starnetStarsWindow;
 	var starxtermStarsWindow;
 	var PM;
+
 	if (useStarNet) {
 		starnetStarsWindow = doExtractStars_StarNet(mask);
 	}
 	if (useStarXTerminator) {
 		starxtermStarsWindow = doExtractStars_StarXTerminator(mask);
 	}
+	var viewIds = [];
+	// set MaskGen for debugging
+	if (useMaskGen) {
+		PM = new PixelMath;
+		PM.expression = format("%s", maskgenView.id);
+		PM.executeOn(mask);
+		// prepare for final combination
+		viewIds.push(maskgenView.id);
+	}
+	// set StarNet for debugging
 	if (useStarNet) {
 		PM = new PixelMath;
 		PM.expression = format("%s", starnetStarsWindow.mainView.id);
 		PM.executeOn(mask);
 		doBinarize(mask, binarize_multiplier_starnet);
+		// prepare for final combination
+		doBinarize(starnetStarsWindow.mainView, binarize_multiplier_starnet);
+		viewIds.push(starnetStarsWindow.mainView.id);
 	}
+	// set StarXTerminator for debugging
 	if (useStarXTerminator) {
 		PM = new PixelMath;
 		PM.expression = format("%s", starxtermStarsWindow.mainView.id);
 		PM.executeOn(mask);
 		doBinarize(mask, binarize_multiplier_xterm);
-	}	
-	if(useStarNet && useStarXTerminator) {
-		// using both, binarize each starless independently before combining
-		doBinarize(starnetStarsWindow.mainView, binarize_multiplier_starnet);
-		doBinarize(starxtermStarsWindow.mainView, binarize_multiplier_xterm); 
-		// do not rescale
-		PM = new PixelMath;
-		PM.expression = format("%s + %s", starnetStarsWindow.mainView.id, starxtermStarsWindow.mainView.id);
-		PM.executeOn(mask);
+		// prepare for final combination
+		doBinarize(starxtermStarsWindow.mainView, binarize_multiplier_xterm);
+		viewIds.push(starxtermStarsWindow.mainView.id);
+	}
+	// construct final image
+	PM = new PixelMath;
+	PM.expression = viewIds.join("+");
+	PM.executeOn(mask);
+
+	// remove temporary windows
+	if (useMaskGen) {
+		maskgenView.window.forceClose();
 	}
 	if (useStarNet) {
 		starnetStarsWindow.forceClose();

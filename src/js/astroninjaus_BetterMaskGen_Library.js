@@ -28,6 +28,10 @@
 //                         skip object, if ppm and plx absent
 //       17.06.2019  1.1.4 release
 
+#include <pjsr/CryptographicHash.jsh>
+#include <pjsr/DataType.jsh>
+#include <pjsr/FileMode.jsh>
+#include <pjsr/UndoFlag.jsh>
 
 #define Compression_ZLib   1
 
@@ -80,77 +84,77 @@ function gccParms()
    this.dataFolder      = null;
 
    // load whatever can be loaded
-   importGccParms(this);
+   this.import = function() {
+      if (Parameters.has("minMagCat")) {
+         this.minMagCat = Parameters.getReal("minMagCat");
+      }
+      if (Parameters.has("maxMagCat")) {
+         this.maxMagCat = Parameters.getReal("maxMagCat");
+      }
+      if (Parameters.has("minMagMask")) {
+         this.minMagMask = Parameters.getReal("minMagMask");
+      }
+      if (Parameters.has("maxMagMask")) {
+         this.maxMagMask = Parameters.getReal("maxMagMask");
+      }
+      if (Parameters.has("minRadius")) {
+         this.minRadius = Parameters.getReal("minRadius");
+      }
+      if (Parameters.has("maxRadius")) {
+         this.maxRadius = Parameters.getReal("maxRadius");
+      }
+      if (Parameters.has("maxWidth")) {
+         this.maxWidth = Parameters.getReal("maxWidth");
+      }
+      if (Parameters.has("minWidth")) {
+         this.minWidth = Parameters.getReal("minWidth");
+      }
+      if (Parameters.has("allStars")) {
+         this.allStars = Parameters.getBoolean("allStars");
+      }
+      if (Parameters.has("version")) {
+         this.version = Parameters.getString("version");
+      }
+      if (Parameters.has("softEdges")) {
+         this.softEdges = Parameters.getBoolean("softEdges");
+      }
+      if (Parameters.has("ringWidthScale")) {
+         this.ringWidthScale = Parameters.getReal("ringWidthScale");
+      }
+      if (Parameters.has("ringMask")) {
+         this.ringMask = Parameters.getBoolean("ringMask");
+      }
+      if (Parameters.has("dataFolder")) {
+         this.dataFolder = Parameters.getString("dataFolder");
+      }
+   }
+
+   this.export = function() {
+      Parameters.set("minMagCat", this.minMagCat);
+      Parameters.set("maxMagCat", this.maxMagCat);
+      Parameters.set("minMagMask", this.minMagMask);
+      Parameters.set("maxMagMask", this.maxMagMask);
+      Parameters.set("minRadius", this.minRadius);
+      Parameters.set("maxRadius", this.maxRadius);
+      Parameters.set("maxWidth", this.maxWidth);
+      Parameters.set("minWidth", this.minMagCat);
+      Parameters.set("allStars", this.allStars);
+      // Parameters.set("VizierSite", parms.VizierSite);
+      Parameters.set("version", this.version);
+      Parameters.set("softEdges", this.softEdges);
+      Parameters.set("ringWidthScale", this.ringWidthScale);
+      Parameters.set("ringMask", this.ringMask);
+      Parameters.set("dataFolder", this.dataFolder);
+   }
+
+   // trigger import on construction
+   this.import();
+
+   return this;
 }
 
-function exportGccParms(parms)
+function cControl(imageWindow, parms, dialog)
 {
-   Parameters.set("minMagCat", parms.minMagCat);
-   Parameters.set("maxMagCat", parms.maxMagCat);
-   Parameters.set("minMagMask", parms.minMagMask);
-   Parameters.set("maxMagMask", parms.maxMagMask);
-   Parameters.set("minRadius", parms.minRadius);
-   Parameters.set("maxRadius", parms.maxRadius);
-   Parameters.set("maxWidth", parms.maxWidth);
-   Parameters.set("minWidth", parms.minMagCat);
-   Parameters.set("allStars", parms.allStars);
-   // Parameters.set("VizierSite", parms.VizierSite);
-   Parameters.set("version", parms.version);
-   Parameters.set("softEdges", parms.softEdges);
-   Parameters.set("ringWidthScale", parms.ringWidthScale);
-   Parameters.set("ringMask", parms.ringMask);
-   Parameters.set("dataFolder", parms.dataFolder);
-}
-
-function importGccParms(parms)
-{
-   if (Parameters.has("minMagCat")) {
-      parms.minMagCat = Parameters.getReal("minMagCat");
-   }
-   if (Parameters.has("maxMagCat")) {
-      parms.maxMagCat = Parameters.getReal("maxMagCat");
-   }
-   if (Parameters.has("minMagMask")) {
-      parms.minMagMask = Parameters.getReal("minMagMask");
-   }
-   if (Parameters.has("maxMagMask")) {
-      parms.maxMagMask = Parameters.getReal("maxMagMask");
-   }
-   if (Parameters.has("minRadius")) {
-      parms.minRadius = Parameters.getReal("minRadius");
-   }
-   if (Parameters.has("maxRadius")) {
-      parms.maxRadius = Parameters.getReal("maxRadius");
-   }
-   if (Parameters.has("maxWidth")) {
-      parms.maxWidth = Parameters.getReal("maxWidth");
-   }
-   if (Parameters.has("minWidth")) {
-      parms.minWidth = Parameters.getReal("minWidth");
-   }
-   if (Parameters.has("allStars")) {
-      parms.allStars = Parameters.getBoolean("allStars");
-   }
-   if (Parameters.has("version")) {
-      parms.version = Parameters.getString("version");
-   }
-   if (Parameters.has("softEdges")) {
-      parms.softEdges = Parameters.getBoolean("softEdges");
-   }
-   if (Parameters.has("ringWidthScale")) {
-      parms.ringWidthScale = Parameters.getReal("ringWidthScale");
-   }
-   if (Parameters.has("ringMask")) {
-      parms.ringMask = Parameters.getBoolean("ringMask");
-   }
-   if (Parameters.has("dataFolder")) {
-      parms.dataFolder = Parameters.getString("dataFolder");
-   }
-}
-
-function cControl()
-{
-
    this.boxArea = 0;
    this.boxes = [];
    this.catalogName = GAIA;
@@ -160,7 +164,7 @@ function cControl()
    this.dataVizieR = null;
    this.dataGaiaDR3 = null;
    this.dec = 0;
-   this.dialog = null;
+   this.dialog = dialog;
    this.download = false;
    this.height = 0;
    this.id = '';
@@ -183,18 +187,152 @@ function cControl()
    this.theta = 0;
    this.usePSF = false;
    this.width = 0;
-   this.window = null;
+   this.window = imageWindow;
    this.years = 0;
    this.GaiaDR3enabled = false;
    this.GaiaDR3using = false;
    this.GaiaDR3File = '';
+   
+   this.init = function(dataFolder) {
+      if (this.window != null) {
+         this.image       = this.window.mainView.image;
+         this.width       = this.image.width;
+         this.height      = this.image.height;
+         var pos          = getImageEQPosition(this.window);
+         this.id          = getKeyString(this.window, 'OBJECT');
+         if (this.id == null) 
+            this.id = 'unknown';
+         this.ra          = pos.x;
+         this.dec         = pos.y;
+         this.resolution  = getImageResolution(this.window);
+
+         this.GaiaDR3enabled = TypeDescription.externalObjects.indexOf("Gaia") > -1;
+
+         Console.writeln('GaiaDR3enabled '+ this.GaiaDR3enabled);
+
+         this.GaiaDR3using = this.GaiaDR3enabled;
+
+         this.radius      = Math.sqrt(Math.pow(this.width / 2, 2) 
+                              + (Math.pow(this.height / 2, 2)))
+                              * this.resolution;
+
+         Console.writeln('Dec:\t' + DMSangle.FromAngle(this.dec).ToString(true),
+                  '\tRa:\t'+ DMSangle.FromAngle(this.ra / 15).ToString(true) +
+                  '\nRadius:\t' + this.radius.toFixed(4));
+
+         this.coneArea    = this.radius * this.radius * Math.PI / 3600;
+         this.progress    = 0;
+
+         this.dataVizieR  = new MaskGenData(dataFolder, this.id, this.ra, this.dec);
+         //
+         // if data is new, begin loading stars from BSC5
+         //
+         var fdBSC5 = null;
+         var index  = -1;
+         for (var i in this.dataVizieR.getDataInfo().filedescriptors)
+         {
+            if (this.dataVizieR.getDataInfo().filedescriptors[i].source == 'BSC5')
+            {
+               fdBSC5 = this.dataVizieR.getDataInfo().filedescriptors[i];
+               index = i;
+               break;
+            }
+         }
+         if (fdBSC5 == null && this.dataVizieR.getDataInfo().filedescriptors.length == 0)
+         {
+            // try new BSC5 data
+            var bsc5 =  File.systemTempDirectory + '/bsc5.txt';
+            writeBSC5(this.ra, this.dec, this.radius, bsc5);
+            if (File.exists(bsc5))
+            {
+               var binfile = dataFolder + '/' + this.dataVizieR.baseFile +
+                              '[' + this.dataVizieR.getnextIndex().toString() + '].bin';
+
+               this.dataVizieR.addNewDescriptor(fileDescriptor(binfile, false, '', 0, 0, 'BSC5',
+                              0, 0, 0, [0, 0], 0))
+
+               this.dataVizieR.fillDescriptor(0, bsc5)
+               File.remove(bsc5);
+            }
+         }
+         if (fdBSC5 != null && !fdBSC5.valid)
+         {
+            // try refresh BSC5 data
+            var bsc5 =  File.systemTempDirectory + '/bsc5.txt';
+
+            writeBSC5(this.ra, this.dec, this.radius, bsc5);
+            if (File.exists(bsc5))
+            {
+               var binfile = dataFolder + '/' + this.dataVizieR.baseFile +
+                              '[' + this.dataVizieR.getnextIndex().toString() + '].bin';
+
+               this.dataVizieR.fillDescriptor(index, bsc5);
+
+               Console.writeln('BSC5 updated for this mask');
+               File.remove(bsc5);
+            }
+         }
+         
+         this.boxes = generateBoxes(this.window);
+
+         for (var i in this.boxes) this.boxArea += this.boxes[i].area;
+
+         var dateObs = getKeyString(this.window, "DATE-OBS");
+         if (dateObs == null)
+         {
+            var fi = new FileInfo(this.window.filePath);
+            if (fi.exists)
+            {
+               var isoStr = fi.lastModified.toISOString();
+               dateObs = isoStr.substr(0, 10);
+            }
+            else
+               {
+                  var date = new Date(Date.now());
+                  dateObs  = date.toISOString().split('T')[0];
+               }
+         }
+         var t = dateObs.indexOf("T");
+         if (t > -1) dateObs = dateObs.substring(0, t);
+      
+         this.julianDay = JulianDay(dateObs);
+
+         this.years = (this.julianDay - 2451545.0) / 365.25;
+      }
+   }
+
+   // trigger init on construction
+   this.init(parms.dataFolder);
+
+   return this;
 }
 
+function autoMaskGen(window, maskId) {
+   var parms = gccParms();
+   Console.writeln(parms.maxWidth)
+   var cc = cControl(window, parms, null);
+   var keywords = [];
+
+   return MaskGen_execute(cc, parms, maskId, keywords);
+}
 
 function MaskGen_execute(cc, parms, maskId, keywords) {
+   cc.window.regenerateAstrometricSolution();
+
+   // setup dataFolder
+   if (parms.dataFolder == null || !File.directoryExists(parms.dataFolder))
+   {
+      parms.dataFolder = File.systemTempDirectory + '/MaskGen';
+      if (!File.directoryExists(parms.dataFolder))
+      {
+         File.createDirectory(parms.dataFolder, true);
+         Console.writeln('Folder created: ' + parms.dataFolder);
+      }
+   }
+
    if (cc.GaiaDR3using) {
       loadLocalDR3(cc, parms);
-      cc.dataExec = new GaiaDR3File(cc.GaiaDR3File);
+      cc.dataExec = new XGaiaDR3File(cc.GaiaDR3File);
    } else {
       cc.dataExec = cc.dataVizieR;
    }
@@ -840,7 +978,9 @@ function downloadBox(filedescriptor, columns, tempFile, site, allStars)
 
 function errMessage(txt)
 {
-   new MessageBox(txt, ID, StdIcon_Error).execute();
+   var id = "MaskGen";
+   Console.warningln(format("%s: %s", id, txt))
+   new MessageBox(txt, id, StdIcon_Error).execute();
 }
 
 function angularSeparation(ra1, de1, ra2, de2)
@@ -968,7 +1108,7 @@ function Arc(x , y0 , y1 , r )
 }
 
 
-function julianDay(ISODate)
+function JulianDay(ISODate)
 {
    var d = new Date(ISODate);
    var y = d.getFullYear();
@@ -2315,7 +2455,7 @@ function loadLocalDR3(cc, parms)
    P.executeGlobal();
 }
 
-function GaiaDR3File(FilePath)
+function XGaiaDR3File(FilePath)
 {
    Console.writeln('FilePath ' + FilePath);
    var rdr = new reader(FilePath);

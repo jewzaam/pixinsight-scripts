@@ -34,14 +34,10 @@
 #include <pjsr/NumericControl.jsh>
 #include <pjsr/Sizer.jsh>
 #include <pjsr/Slider.jsh>
-#include <pjsr/UndoFlag.jsh>
 #include <pjsr/SampleType.jsh>
-#include <pjsr/DataType.jsh>
 #include <pjsr/Color.jsh>
-#include <pjsr/FileMode.jsh>
 #include <pjsr/StdIcon.jsh>
 #include <pjsr/StdCursor.jsh>
-#include <pjsr/CryptographicHash.jsh>
 
 #include "astroninjaus_BetterMaskGen_Library.js"
 
@@ -171,104 +167,8 @@ function showDialog(imageWindow)
       }
    }
 
-   // setup dataFolder
-
-   if (parms.dataFolder == null || !File.directoryExists(parms.dataFolder))
-   {
-      parms.dataFolder = File.systemTempDirectory + '/MaskGen';
-      if (!File.directoryExists(parms.dataFolder))
-      {
-         File.createDirectory(parms.dataFolder, true);
-         Console.writeln('Folder created: ' + parms.dataFolder);
-      }
-   }
-
-
-   var cc = new cControl();
-   with (cc)
-   {
-      dialog      = this;
-      window      = imageWindow;
-      image       = window.mainView.image;
-      width       = image.width;
-      height      = image.height;
-      var pos     = getImageEQPosition(imageWindow);
-      id          = getKeyString(window, 'OBJECT');
-      if (id == null) id = 'unknown';
-      ra          = pos.x;
-      dec         = pos.y;
-      resolution  = getImageResolution(window);
-
-      GaiaDR3enabled = TypeDescription.externalObjects.indexOf("Gaia") > -1;
-
-      Console.writeln('GaiaDR3enabled '+ GaiaDR3enabled);
-
-      GaiaDR3using = GaiaDR3enabled;
-
-      radius      = Math.sqrt(Math.pow(width / 2, 2) + (Math.pow(height / 2, 2)))
-                     * resolution;
-
-      Console.writeln('Dec:\t' + DMSangle.FromAngle(dec).ToString(true),
-               '\tRa:\t'+ DMSangle.FromAngle(ra / 15).ToString(true) +
-               '\nRadius:\t' + radius.toFixed(4));
-
-      coneArea    = radius * radius * Math.PI / 3600;
-      progress    = 0;
-
-      dataVizieR  = new MaskGenData(parms.dataFolder, id, ra, dec);
-      //
-      // if data is new, begin loading stars from BSC5
-      //
-      var fdBSC5 = null;
-      var index  = -1;
-      for (var i in dataVizieR.getDataInfo().filedescriptors)
-      {
-         if (dataVizieR.getDataInfo().filedescriptors[i].source == 'BSC5')
-         {
-            fdBSC5 = dataVizieR.getDataInfo().filedescriptors[i];
-            index = i;
-            break;
-         }
-      }
-      if (fdBSC5 == null && dataVizieR.getDataInfo().filedescriptors.length == 0)
-      {
-         // try new BSC5 data
-         var bsc5 =  File.systemTempDirectory + '/bsc5.txt';
-         writeBSC5(ra, dec, radius, bsc5);
-         if (File.exists(bsc5))
-         {
-            var binfile = parms.dataFolder + '/' + cc.dataVizieR.baseFile +
-                           '[' + dataVizieR.getnextIndex().toString() + '].bin';
-
-            dataVizieR.addNewDescriptor(fileDescriptor(binfile, false, '', 0, 0, 'BSC5',
-                           0, 0, 0, [0, 0], 0))
-
-            dataVizieR.fillDescriptor(0, bsc5)
-            File.remove(bsc5);
-         }
-      }
-      if (fdBSC5 != null && !fdBSC5.valid)
-      {
-         // try refresh BSC5 data
-         var bsc5 =  File.systemTempDirectory + '/bsc5.txt';
-
-         writeBSC5(ra, dec, radius, bsc5);
-         if (File.exists(bsc5))
-         {
-            var binfile = parms.dataFolder + '/' + cc.dataVizieR.baseFile +
-                           '[' + dataVizieR.getnextIndex().toString() + '].bin';
-
-            dataVizieR.fillDescriptor(index, bsc5);
-
-            Console.writeln('BSC5 updated for this mask');
-            File.remove(bsc5);
-         }
-      }
-   }
-
-   cc.boxes = generateBoxes(cc.window);
-
-   for (var i in cc.boxes) cc.boxArea += cc.boxes[i].area;
+   // create an initialize cc with cControl(window, parms, dialog)
+   var cc = new cControl(imageWindow, parms, this);
 
    // **************************************************************************
    // my © and id label
@@ -1111,7 +1011,7 @@ function showDialog(imageWindow)
    var t = dateObs.indexOf("T");
    if (t > -1) dateObs = dateObs.substring(0, t);
 
-   cc.julianDay = julianDay(dateObs);
+   cc.julianDay = JulianDay(dateObs);
    this.editDate.text = dateObs;
 
    if (cc.dataVizieR.filesCompleted() && cc.dataVizieR.getDataInfo().records > 0)
@@ -1179,13 +1079,14 @@ function main()
    // run dialog
    // *******************************************************************************
    Console.show();
- 	var dialog = new showDialog(window);
    if (Parameters.isGlobalTarget) {
       // show the dialog, user interaction mode
+      var dialog = new showDialog(window);
 	   dialog.execute();
    } else {
       // run with parameters on the target view
-      dialog.btnExec.onClick(true);
+      autoMaskGen(window, "test_mask_id");
+      // dialog.btnExec.onClick(true);
    }
 }
 
