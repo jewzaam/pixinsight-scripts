@@ -85,8 +85,8 @@ function mainCreateDeconStarMask() {
 	}
 	mask.window.show();
 
-	var binarize_multiplier_starnet = 1;
-	var binarize_multiplier_xterm = 4; // starxterm results in lower mean, multiply
+	var binarize_multiplier_starnet = Parameters.has("binarize_multiplier_starnet") ? Parameters.getReal("binarize_multiplier_starnet") : 1;
+	var binarize_multiplier_xterm = Parameters.has("binarize_multiplier_xterm") ? Parameters.getReal("binarize_multiplier_xterm") : 4;
 
 	// apply stf
 	doSTF(mask);
