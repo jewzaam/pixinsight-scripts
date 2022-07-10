@@ -45,9 +45,23 @@ function mainFilterIdentifier() {
         return;
     }
 
-    window.currentView.id = filter;
+   // get number of exposures from HISTORY
+   var exposure_count = "";
+   var COMMENT = "ImageIntegration.numberOfImages: ";
+   var i = 0
+   while (i < window.keywords.length) {
+      var k = window.keywords[i];
+      if (k.name == "HISTORY") {
+         if (k.comment.substring(0, COMMENT.length) == COMMENT) {
+            exposure_count = k.comment.substring(COMMENT.length, k.comment.length);
+         }
+      }
+      i++;
+   }
 
-    Console.writeln(format("Renamed '%s' to '%s'!", oldId, filter))
+   window.currentView.id = format("%s_XXXs_x%s", filter, exposure_count);
+
+   Console.writeln(format("Renamed '%s' to '%s'!", oldId, window.currentView.id))
 }
 
 mainFilterIdentifier();
