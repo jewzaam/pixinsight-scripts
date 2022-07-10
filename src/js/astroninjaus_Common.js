@@ -190,6 +190,30 @@ function doExtractStars_StarNet(view) {
 	return starnetStarsWindow;
 }
 
+function doExtractStars_StarNet1(view) {
+	return doExtractStars_StarNet(view);
+}
+
+function doExtractStars_StarNet2(view) {
+	// to control the output mask don't create stars, we will do with PixelMath
+
+	// extract stars with StarNet
+	var starnetStarlessWindow = cloneView(view, format("_%s_starnet2_starless", view.id));
+	starnetStarlessWindow.show();
+	let starNet = new StarNet2();
+	starNet.stride = StarNet2.prototype.itemOne;
+	starNet.mask = false;
+	starNet.executeOn(starnetStarlessWindow.mainView);
+	var starnetStarsWindow = cloneView(view, format("_%s_starnet2_stars", view.id));
+	starnetStarsWindow.show()
+	var PM = new PixelMath;
+	PM.expression = format("%s - %s", view.id, starnetStarlessWindow.mainView.id);
+	PM.executeOn(starnetStarsWindow.mainView);
+	starnetStarlessWindow.forceClose();
+
+	return starnetStarsWindow;
+}
+
 function doExtractStars_StarXTerminator(view) {
 	// extract stars with StarXterminator
 	var starxtermStarlesssWindow = cloneView(view, format("_%s_starxterm_starless", view.id));
