@@ -215,12 +215,13 @@ function doExtractStars_StarNet2(view) {
 }
 
 function doExtractStars_StarXTerminator(view) {
-	// extract stars with StarXterminator
+	// extract stars with StarXterminator2
 	var starxtermStarlesssWindow = cloneView(view, format("_%s_starxterm_starless", view.id));
 	starxtermStarlesssWindow.show();
 	var starX = new StarXTerminator;
 	starX.stars = false;
-	starX.linear = false;
+	starX.unscreen = false;
+	starX.overlap = 0.2;
 	starX.executeOn(starxtermStarlesssWindow.mainView);
 	var starxtermStarsWindow = cloneView(view, format("_%s_starxterm_stars", view.id));
 	starxtermStarsWindow.show()
