@@ -86,17 +86,47 @@ function mainRemoveStars() {
 	var position_1 = Parameters.has("position_1") ? Parameters.getString("position_1") : "none";
     var position_2 = Parameters.has("position_2") ? Parameters.getString("position_2") : "none";
 
-    // initialize the stars image
-    var stars = cloneView(window.currentView, format("%s_stars", window.currentView.id))
-    stars.show()
-    starsView = stars.mainView
-	var PM = new PixelMath;
-	PM.expression = "0"
-	PM.executeOn(starsView)
+    // initialize the stars image, exact match only (logic for partial matches in astroninjaus_AddStars.js)
+    var starsViewIdSearch = format("%s_stars", window.currentView.id)
+    var origViewIdSearch = format("%s_orig", window.currentView.id)
+    var unscreenedViewIdSearch = format("%s_unscreened", window.currentView.id)
 
-    do_RemoveStars(window.currentView, starsView, position_0)
-    do_RemoveStars(window.currentView, starsView, position_1)
-    do_RemoveStars(window.currentView, starsView, position_2)
+    // try to find existing 'stars' image first
+    var stars = findWindowById(starsViewIdSearch)
+    var orig = findWindowById(origViewIdSearch)
+    var unscreened = findWindowById(unscreenedViewIdSearch)
+
+    if (orig == null) {
+        Console.writeln(format("Creating: %s", origViewIdSearch))
+        orig = cloneView(window.currentView, origViewIdSearch)
+        orig.show()
+    }
+
+    if (unscreened == null) {
+        Console.writeln(format("Creating: %s", unscreenedViewIdSearch))
+        unscreened = cloneView(window.currentView, unscreenedViewIdSearch)
+        unscreened.show()
+    }
+
+    if (stars == null) {
+        // did not find a match, create the stars view
+        Console.writeln(format("Creating: %s", starsViewIdSearch))
+        stars = cloneView(window.currentView, starsViewIdSearch)
+        var PM = new PixelMath;
+        PM.expression = "0"
+        PM.executeOn(stars.mainView)
+        stars.show()
+    }    
+
+    do_RemoveStars(window.currentView, stars.mainView, position_0)
+    do_RemoveStars(window.currentView, stars.mainView, position_1)
+    do_RemoveStars(window.currentView, stars.mainView, position_2)
+
+    // create 'unscreened' version of stars
+    var PM = new PixelMath;
+    PM.expression = format("~((~%s)/(~%s))", origViewIdSearch, window.currentView.id)
+    Console.writeln(PM.expression)
+    PM.executeOn(unscreened.mainView)
     
     // enable mask if one was removed
     if (remove_mask) {

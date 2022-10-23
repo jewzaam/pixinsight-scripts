@@ -155,6 +155,27 @@ function doDilate(view) {
 	dilute.executeOn(view);
 }
 
+// returns the window matching the search
+function findWindowById(searchIdString) {
+	var windowMainViewId = ""
+	var window
+
+	Console.writeln(format("Searching for window by id: %s", searchIdString))
+
+	var allWindows = ImageWindow.windows;
+    for (var i in allWindows) {
+        if (allWindows[i].mainView.id == searchIdString) {
+            // found exact match.
+            window = allWindows[i]
+            windowMainViewId = window.mainView.id
+            Console.writeln(format("Window match found: %s", window.mainView.id))
+            break
+        }
+    }
+
+	return window
+}
+
 // returns the new window
 function cloneView(sourceView, id)
 {
@@ -171,62 +192,62 @@ function cloneView(sourceView, id)
 	return tmp;
 }
 
-function doExtractStars_StarNet(view) {
+function doExtractStars_StarNet(sourceView) {
 	// to control the output mask don't create stars, we will do with PixelMath
 
 	// extract stars with StarNet
-	var starnetStarlessWindow = cloneView(view, format("_%s_starnet_starless", view.id));
+	var starnetStarlessWindow = cloneView(sourceView, format("_%s_starnet_starless", sourceView.id));
 	starnetStarlessWindow.show();
 	let starNet = new StarNet();
 	starNet.stride = 0;
 	starNet.executeOn(starnetStarlessWindow.mainView);
-	var starnetStarsWindow = cloneView(view, format("_%s_starnet_stars", view.id));
+	var starnetStarsWindow = cloneView(sourceView, format("_%s_starnet_stars", sourceView.id));
 	starnetStarsWindow.show()
 	var PM = new PixelMath;
-	PM.expression = format("%s - %s", view.id, starnetStarlessWindow.mainView.id);
+	PM.expression = format("%s - %s", sourceView.id, starnetStarlessWindow.mainView.id);
 	PM.executeOn(starnetStarsWindow.mainView);
 	starnetStarlessWindow.forceClose();
 
 	return starnetStarsWindow;
 }
 
-function doExtractStars_StarNet1(view) {
-	return doExtractStars_StarNet(view);
+function doExtractStars_StarNet1(sourceView) {
+	return doExtractStars_StarNet(sourceView);
 }
 
-function doExtractStars_StarNet2(view) {
+function doExtractStars_StarNet2(sourceView) {
 	// to control the output mask don't create stars, we will do with PixelMath
 
 	// extract stars with StarNet
-	var starnetStarlessWindow = cloneView(view, format("_%s_starnet2_starless", view.id));
+	var starnetStarlessWindow = cloneView(sourceView, format("_%s_starnet2_starless", sourceView.id));
 	starnetStarlessWindow.show();
 	let starNet = new StarNet2();
 	starNet.stride = StarNet2.prototype.itemOne;
 	starNet.mask = false;
 	starNet.executeOn(starnetStarlessWindow.mainView);
-	var starnetStarsWindow = cloneView(view, format("_%s_starnet2_stars", view.id));
+	var starnetStarsWindow = cloneView(sourceView, format("_%s_starnet2_stars", sourceView.id));
 	starnetStarsWindow.show()
 	var PM = new PixelMath;
-	PM.expression = format("%s - %s", view.id, starnetStarlessWindow.mainView.id);
+	PM.expression = format("%s - %s", sourceView.id, starnetStarlessWindow.mainView.id);
 	PM.executeOn(starnetStarsWindow.mainView);
 	starnetStarlessWindow.forceClose();
 
 	return starnetStarsWindow;
 }
 
-function doExtractStars_StarXTerminator(view) {
+function doExtractStars_StarXTerminator(sourceView, destinationView) {
 	// extract stars with StarXterminator2
-	var starxtermStarlesssWindow = cloneView(view, format("_%s_starxterm_starless", view.id));
+	var starxtermStarlesssWindow = cloneView(sourceView, format("_%s_starxterm_starless", sourceView.id));
 	starxtermStarlesssWindow.show();
 	var starX = new StarXTerminator;
 	starX.stars = false;
 	starX.unscreen = false;
 	starX.overlap = 0.2;
 	starX.executeOn(starxtermStarlesssWindow.mainView);
-	var starxtermStarsWindow = cloneView(view, format("_%s_starxterm_stars", view.id));
+	var starxtermStarsWindow = cloneView(sourceView, format("_%s_starxterm_stars", sourceView.id));
 	starxtermStarsWindow.show()
 	var PM = new PixelMath;
-	PM.expression = format("%s - %s", view.id, starxtermStarlesssWindow.mainView.id);
+	PM.expression = format("%s - %s", sourceView.id, starxtermStarlesssWindow.mainView.id);
 	PM.executeOn(starxtermStarsWindow.mainView);
 	starxtermStarlesssWindow.forceClose();
 
