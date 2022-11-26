@@ -20,15 +20,16 @@ function main()
        return;
     }
 
-    // find a good target window by finding DATE-OBS header
-    var sourceWindow;
+    var sourceWindow; // will be used to indicate reference image was found.
     var allWindows = ImageWindow.windows;
+
+    // Solved image found with header "RADESYS".
     for (var i in allWindows) {
         var w = allWindows[i]
         var j = 0
         while (j < w.keywords.length)
         {
-            if (w.keywords[j].name == "DATE-OBS") {
+            if (w.keywords[j].name == "RADESYS") {
                 sourceWindow = w;
                 break;
             }
@@ -37,6 +38,26 @@ function main()
         if (sourceWindow) {
             Console.writeln(format("Found candidate source image: %s",sourceWindow.mainView.id))
             break
+        }
+    }
+
+    // Coordinates found with header "DATE-OBS".
+    if (sourceWindow == null) {
+        for (var i in allWindows) {
+            var w = allWindows[i]
+            var j = 0
+            while (j < w.keywords.length)
+            {
+                if (w.keywords[j].name == "DATE-OBS") {
+                    sourceWindow = w;
+                    break;
+                }
+                j++;
+            }
+            if (sourceWindow) {
+                Console.writeln(format("Found candidate source image: %s",sourceWindow.mainView.id))
+                break
+            }
         }
     }
 

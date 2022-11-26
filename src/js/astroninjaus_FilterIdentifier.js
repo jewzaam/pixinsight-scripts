@@ -59,7 +59,8 @@ function mainFilterIdentifier() {
       i++;
    }
 
-   window.currentView.id = format("%s_XXXs_x%s", filter, exposure_count);
+   //window.currentView.id = format("%s_XXXs_x%s", filter, exposure_count);
+   window.currentView.id = format("%s", filter);
 
    Console.writeln(format("Renamed '%s' to '%s'!", oldId, window.currentView.id))
 }
