@@ -28,7 +28,7 @@ function do_StarNetv1(sourceView, starsView) {
 	PM.expression = format("$T - %s", starsStarNet1.mainView.id)
 	PM.executeOn(sourceView)
     PM.expression = format("$T + %s", starsStarNet1.mainView.id)
-    PM.executeOn(starsView)
+    PM.executeOn(starsView, false)
     starsStarNet1.forceClose()
 }
 
@@ -38,17 +38,19 @@ function do_StarNetv2(sourceView, starsView) {
 	PM.expression = format("$T - %s", starsStarNet2.mainView.id)
 	PM.executeOn(sourceView)
     PM.expression = format("$T + %s", starsStarNet2.mainView.id)
-    PM.executeOn(starsView)
+    PM.executeOn(starsView, false)
     starsStarNet2.forceClose()
 }
 
 function do_StarXTerminator(sourceView, starsView) {
     var starsStarXTerminator = doExtractStars_StarXTerminator(sourceView)
 	var PM = new PixelMath;
-	PM.expression = format("$T - %s", starsStarXTerminator.mainView.id)
+    // copy back faint bits into original, problem with SXT only
+    // ASSUMES DOING THIS ON A NON-LINEAR IMAGE!!
+	PM.expression = format("$T - %s + iif(%s > 0.001, 0, %s)", starsStarXTerminator.mainView.id, starsStarXTerminator.mainView.id, starsStarXTerminator.mainView.id)
 	PM.executeOn(sourceView)
-    PM.expression = format("$T + %s", starsStarXTerminator.mainView.id)
-    PM.executeOn(starsView)
+    PM.expression = format("$T + %s - iif(%s > 0.001, 0, %s)", starsStarXTerminator.mainView.id, starsStarXTerminator.mainView.id, starsStarXTerminator.mainView.id)
+    PM.executeOn(starsView, false)
     return starsStarXTerminator.forceClose()
 }
 
@@ -114,7 +116,7 @@ function mainRemoveStars() {
         stars = cloneView(window.currentView, starsViewIdSearch)
         var PM = new PixelMath;
         PM.expression = "0"
-        PM.executeOn(stars.mainView)
+        PM.executeOn(stars.mainView, false)
         stars.show()
     }    
 
@@ -126,7 +128,7 @@ function mainRemoveStars() {
     var PM = new PixelMath;
     PM.expression = format("~((~%s)/(~%s))", origViewIdSearch, window.currentView.id)
     Console.writeln(PM.expression)
-    PM.executeOn(unscreened.mainView)
+    PM.executeOn(unscreened.mainView, false)
     
     // enable mask if one was removed
     if (remove_mask) {
