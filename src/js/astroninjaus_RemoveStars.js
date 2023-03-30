@@ -47,9 +47,12 @@ function do_StarXTerminator(sourceView, starsView) {
 	var PM = new PixelMath;
     // copy back faint bits into original, problem with SXT only
     // ASSUMES DOING THIS ON A NON-LINEAR IMAGE!!
-	PM.expression = format("$T - %s + iif(%s > 0.001, 0, %s)", starsStarXTerminator.mainView.id, starsStarXTerminator.mainView.id, starsStarXTerminator.mainView.id)
+    var sxt_threshold = Parameters.has("sxt_threshold") ? Parameters.getString("sxt_threshold") : "0";
+	PM.expression = format("$T - %s + iif(%s > %s, 0, %s)", 
+        starsStarXTerminator.mainView.id, starsStarXTerminator.mainView.id, sxt_threshold, starsStarXTerminator.mainView.id)
 	PM.executeOn(sourceView)
-    PM.expression = format("$T + %s - iif(%s > 0.001, 0, %s)", starsStarXTerminator.mainView.id, starsStarXTerminator.mainView.id, starsStarXTerminator.mainView.id)
+    PM.expression = format("$T + %s - iif(%s > %s, 0, %s)", 
+        starsStarXTerminator.mainView.id, starsStarXTerminator.mainView.id, sxt_threshold, starsStarXTerminator.mainView.id)
     PM.executeOn(starsView, false)
     return starsStarXTerminator.forceClose()
 }
@@ -64,7 +67,9 @@ function mainRemoveStars() {
 
     var remove_mask = false;
 
-    if (window.maskEnabled && !window.mask.isNull)  {
+    var ask_remove_mask = Parameters.has("ask_remove_mask") ? Parameters.getString("ask_remove_mask") : "true";
+
+    if (ask_remove_mask == "true" && window.maskEnabled && !window.mask.isNull)  {
         var q = new MessageBox("Window has an active mask.  Temporarily remove the mask?",
             "Warning", StdIcon_Question,
             StdButton_No, StdButton_Yes);
@@ -87,6 +92,9 @@ function mainRemoveStars() {
 	var position_0 = Parameters.has("position_0") ? Parameters.getString("position_0") : "none";
 	var position_1 = Parameters.has("position_1") ? Parameters.getString("position_1") : "none";
     var position_2 = Parameters.has("position_2") ? Parameters.getString("position_2") : "none";
+    var keep_orig = Parameters.has("keep_orig") ? Parameters.getString("keep_orig") : "true";
+    var keep_stars = Parameters.has("keep_stars") ? Parameters.getString("keep_stars") : "true";
+    var keep_unscreened = Parameters.has("keep_unscreened") ? Parameters.getString("keep_unscreened") : "true";
 
     // initialize the stars image, exact match only (logic for partial matches in astroninjaus_AddStars.js)
     var starsViewIdSearch = format("%s_stars", window.currentView.id)
@@ -98,16 +106,10 @@ function mainRemoveStars() {
     var orig = findWindowById(origViewIdSearch)
     var unscreened = findWindowById(unscreenedViewIdSearch)
 
-    if (orig == null) {
+    if (keep_orig == "true" && orig == null) {
         Console.writeln(format("Creating: %s", origViewIdSearch))
         orig = cloneView(window.currentView, origViewIdSearch)
         orig.show()
-    }
-
-    if (unscreened == null) {
-        Console.writeln(format("Creating: %s", unscreenedViewIdSearch))
-        unscreened = cloneView(window.currentView, unscreenedViewIdSearch)
-        unscreened.show()
     }
 
     if (stars == null) {
@@ -125,14 +127,25 @@ function mainRemoveStars() {
     do_RemoveStars(window.currentView, stars.mainView, position_2)
 
     // create 'unscreened' version of stars
-    var PM = new PixelMath;
-    PM.expression = format("~((~%s)/(~%s))", origViewIdSearch, window.currentView.id)
-    Console.writeln(PM.expression)
-    PM.executeOn(unscreened.mainView, false)
-    
+    if (keep_unscreened == "true" && unscreened == null) {
+        Console.writeln(format("Creating: %s", unscreenedViewIdSearch))
+        unscreened = cloneView(window.currentView, unscreenedViewIdSearch)
+        unscreened.show()
+
+        var PM = new PixelMath;
+        PM.expression = format("~((~%s)/(~%s))", origViewIdSearch, window.currentView.id)
+        Console.writeln(PM.expression)
+        PM.executeOn(unscreened.mainView, false)
+    }
+
     // enable mask if one was removed
     if (remove_mask) {
         window.maskEnabled = old_mask
+    }
+
+    // close "stars" if we don't want to keep it (note we had to create it to start with)
+    if (keep_stars != "true") {
+        stars.forceClose()
     }
 
 	Console.hide();
