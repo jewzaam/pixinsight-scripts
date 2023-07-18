@@ -34,7 +34,22 @@ function mainBlurXHelper() {
     parameters.sharpen_nonstellar = Parameters.has("sharpen_nonstellar") ? Parameters.getReal("sharpen_nonstellar") : 0.9;
     parameters.ai_file = Parameters.has("ai_file") ? Parameters.getString("ai_file") : "C:/Program Files/PixInsight/library/BlurXTerminator.2.pb";
 
+    image_is_color = ImageWindow.activeWindow.currentView.image.isColor
+
+    if (image_is_color) {
+        Console.writeln("Image is color.  Converting to greyscale temporarily.")
+        var P = new ConvertToGrayscale;
+        P.executeOn(ImageWindow.activeWindow.currentView)
+    }
+
+    // do measurements
     globalMeasure();
+
+    if (image_is_color) {
+        // undo greyscale
+        ImageWindow.activeWindow.undo()
+    }
+
 
     Console.writeln("Running BlurXTerminator with the following:")
     Console.writeln(format("Median FWHM: %f", parameters.medianFWHM))
