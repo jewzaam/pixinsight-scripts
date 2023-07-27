@@ -35,9 +35,12 @@ function mainBlurXHelper() {
     parameters.ai_file = Parameters.has("ai_file") ? Parameters.getString("ai_file") : "C:/Program Files/PixInsight/library/BlurXTerminator.2.pb";
 
     image_is_color = ImageWindow.activeWindow.currentView.image.isColor
+    image_mask_enabled = ImageWindow.activeWindow.maskEnabled;
 
     if (image_is_color) {
         Console.writeln("Image is color.  Converting to greyscale temporarily.")
+        // ensure mask is not set when converting
+        ImageWindow.activeWindow.maskEnabled = false;
         var P = new ConvertToGrayscale;
         P.executeOn(ImageWindow.activeWindow.currentView)
     }
@@ -48,6 +51,8 @@ function mainBlurXHelper() {
     if (image_is_color) {
         // undo greyscale
         ImageWindow.activeWindow.undo()
+        // re-enable mask (if one was set)
+        ImageWindow.activeWindow.maskEnabled = image_mask_enabled
     }
 
 
