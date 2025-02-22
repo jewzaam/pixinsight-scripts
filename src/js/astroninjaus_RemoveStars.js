@@ -106,9 +106,9 @@ function mainRemoveStars() {
     var orig = findWindowById(origViewIdSearch)
     var unscreened = findWindowById(unscreenedViewIdSearch)
 
+    Console.writeln(format("Creating: %s", origViewIdSearch))
+    orig = cloneView(window.currentView, origViewIdSearch)
     if (keep_orig == "true" && orig == null) {
-        Console.writeln(format("Creating: %s", origViewIdSearch))
-        orig = cloneView(window.currentView, origViewIdSearch)
         orig.show()
     }
 
@@ -146,6 +146,10 @@ function mainRemoveStars() {
     // close "stars" if we don't want to keep it (note we had to create it to start with)
     if (keep_stars != "true") {
         stars.forceClose()
+    }
+
+    if (keep_orig != "true") {
+        orig.forceClose()
     }
 
 	Console.hide();

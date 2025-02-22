@@ -217,13 +217,14 @@ function doExtractStars_StarNet1(sourceView) {
 
 function doExtractStars_StarNet2(sourceView) {
 	// to control the output mask don't create stars, we will do with PixelMath
-
+	Console.writeln("Removing stars with StarNet2!")
 	// extract stars with StarNet
 	var starnetStarlessWindow = cloneView(sourceView, format("_%s_starnet2_starless", sourceView.id));
 	starnetStarlessWindow.show();
 	let starNet = new StarNet2();
-	starNet.stride = StarNet2.prototype.itemOne;
+	starNet.stride = StarNet2.prototype.defStride;
 	starNet.mask = false;
+	starNet.linear = true;
 	starNet.executeOn(starnetStarlessWindow.mainView);
 	var starnetStarsWindow = cloneView(sourceView, format("_%s_starnet2_stars", sourceView.id));
 	starnetStarsWindow.show()
